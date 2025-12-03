@@ -1,4 +1,4 @@
-# labsforBASE
+
 Лабораторные работы по Базам Данных  
 Костюк Иван 02261-ДБ  
 Вариант 20. Зарплата
@@ -86,86 +86,116 @@ id_сотрудника (FK -> СОТРУДНИКИ.id) — Идентифика
 
 
 ## Логическая модель по диаграмме
-Сущность "Отделы"
-Ключевой атрибут:
 
-id_отдела (INTEGER, PK, уникальный идентификатор, NOT NULL, AUTO_INCREMENT)
+``` mermaid
+classDiagram
+    direction TB
+    
+    class Отдел {
+        +int id
+        +string название
+        
+        +getСотрудники() List
+    }
+    
+    class Сотрудник {
+        +int id
+        +int табельныйНомер
+        +string ФИО
+        +int разряд
+        
+        +расчитатьЗарплату() decimal
+    }
+    
+    class Должность {
+        +int id
+        +string название
+        
+        +getСтавки() List
+    }
+    
+    class ТарифнаяСетка {
+        +int id
+        +int разряд
+        +decimal ставка
+    }
+    
+    class Табель {
+        +int id
+        +date месяц
+        +decimal часы
+    }
+    
+    %% Основные отношения
+    Отдел "1" -- "*" Сотрудник : работает в
+    Сотрудник "1" -- "1" Должность : занимает
+    Должность "1" -- "*" ТарифнаяСетка : имеет ставки
+    Сотрудник "1" -- "*" Табель : имеет табели
+```
+##Физическая модель 
+```mermaid
+erDiagram
+    ОТДЕЛ {
+        integer id PK "SERIAL PRIMARY KEY"
+        varchar название "NOT NULL UNIQUE"
+    }
+    
+    ДОЛЖНОСТЬ {
+        integer id PK "SERIAL PRIMARY KEY"
+        varchar название "NOT NULL UNIQUE"
+    }
+    
+    ТАРИФНАЯ_СЕТКА {
+        integer id PK "SERIAL PRIMARY KEY"
+        integer должность_id FK "NOT NULL REFERENCES ДОЛЖНОСТЬ(id) ON DELETE CASCADE"
+        integer разряд "NOT NULL CHECK (разряд BETWEEN 7 AND 15)"
+        decimal ставка "NOT NULL CHECK (ставка > 0)"
+    }
+    
+    СОТРУДНИК {
+        integer id PK "SERIAL PRIMARY KEY"
+        integer табельный_номер "NOT NULL UNIQUE"
+        varchar фамилия "NOT NULL"
+        varchar имя "NOT NULL"
+        varchar отчество "NULL"
+        integer разряд "NOT NULL CHECK (разряд BETWEEN 7 AND 15)"
+        integer отдел_id FK "NOT NULL REFERENCES ОТДЕЛ(id) ON DELETE RESTRICT"
+        integer должность_id FK "NOT NULL REFERENCES ДОЛЖНОСТЬ(id) ON DELETE RESTRICT"
+    }
+    
+    ТАБЕЛЬ {
+        integer id PK "SERIAL PRIMARY KEY"
+        integer сотрудник_id FK "NOT NULL REFERENCES СОТРУДНИК(id) ON DELETE CASCADE"
+        integer год "NOT NULL CHECK (год BETWEEN 2020 AND 2100)"
+        integer месяц "NOT NULL CHECK (месяц BETWEEN 1 AND 12)"
+        decimal часы "NOT NULL CHECK (часы BETWEEN 0 AND 300)"
+    }
+    
+    ОТДЕЛ ||--o{ СОТРУДНИК : "FOREIGN KEY (отдел_id)"
+    ДОЛЖНОСТЬ ||--o{ СОТРУДНИК : "FOREIGN KEY (должность_id)"
+    ДОЛЖНОСТЬ ||--o{ ТАРИФНАЯ_СЕТКА : "FOREIGN KEY (должность_id)"
+    СОТРУДНИК ||--o{ ТАБЕЛЬ : "FOREIGN KEY (сотрудник_id)"
+    
+    ТАРИФНАЯ_СЕТКА }|--|| СОТРУДНИК : "должность_id + разряд"
+```
+##2 лабараторная
+Создаем 5 таблиц
+<img width="914" height="729" alt="1" src="https://github.com/user-attachments/assets/8665ca11-3bf2-43c3-911d-4ade709b6473" />
+<img width="986" height="849" alt="2 jpg" src="https://github.com/user-attachments/assets/e5eafb69-ee52-4cc0-9972-7565aa9daf7e" />
 
-Описательные атрибуты:
+далее записываем данные и выводим их для проверки для всех 5 таблиц
+<img width="477" height="228" alt="3" src="https://github.com/user-attachments/assets/f078cf5c-59da-4d37-8b55-0f77efe19eb7" />
+<img width="617" height="543" alt="4" src="https://github.com/user-attachments/assets/8f6b3f15-9860-4268-83d9-771f616da6dc" />
+<img width="588" height="273" alt="5" src="https://github.com/user-attachments/assets/4b716720-9260-4107-b2ca-046f3e01c535" />
+<img width="400" height="902" alt="6 jpg" src="https://github.com/user-attachments/assets/579130a3-8855-4fae-9a5d-3aa845a70338" />
+<img width="819" height="577" alt="7" src="https://github.com/user-attachments/assets/6b740186-5d03-497e-ab14-6f06df14c30d" />
+<img width="562" height="952" alt="8 jpg" src="https://github.com/user-attachments/assets/3f4efb18-aaf6-4a08-9bcc-d0d4bfe26569" />
+<img width="1011" height="402" alt="9" src="https://github.com/user-attachments/assets/187491c6-ecf6-4d72-98d3-741bd9f969cc" />
+<img width="947" height="934" alt="10 jpg" src="https://github.com/user-attachments/assets/7a0a80b5-3d6e-422d-8f6a-23c55bbb8019" />
+<img width="786" height="928" alt="11 jpg" src="https://github.com/user-attachments/assets/b01ff36a-a853-4fc4-95b7-d57dccc8c0e4" />
+<img width="638" height="1057" alt="12 jpg" src="https://github.com/user-attachments/assets/56ce18c4-2255-439b-9e72-b856aa33df5d" />
+здесь Выполнены SELECT-запросы c JOIN
+<img width="874" height="1080" alt="13 jpg" src="https://github.com/user-attachments/assets/301ec00c-6cc2-44d5-a16d-8bf4fa91b8a5" />
 
-название_отдела (VARCHAR(100), обязательный, NOT NULL, UNIQUE)
-
-Ограничения:
-
-Длина названия отдела: от 2 до 100 символов
-
-Название отдела должно быть уникальным в системе
-
-Сущность "Тарифная_сетка"
-Ключевой атрибут:
-
-Составной ключ: (должность, разряд), NOT NULL
-
-Описательные атрибуты:
-
-должность (VARCHAR(100), обязательный, NOT NULL)
-
-разряд (INTEGER, обязательный, NOT NULL, диапазон: от 7 до 15)
-
-ставка_руб_час (DECIMAL(10,2), обязательный, NOT NULL, > 0)
-
-Ограничения:
-
-Комбинация должность+разряд уникальна
-
-Разряд соответствует ЕТКС (от 7 до 15)
-
-Ставка не может быть ниже МРОТ/часов в месяце
-
-Сущность "Сотрудники"
-Ключевой атрибут:
-
-табельный_номер (INTEGER, PK, уникальный идентификатор, NOT NULL, UNIQUE, 6 цифр)
-
-Описательные атрибуты:
-
-фамилия (VARCHAR(50), обязательный, NOT NULL)
-
-имя (VARCHAR(50), обязательный, NOT NULL)
-
-отчество (VARCHAR(50), обязательный, NOT NULL)
-
-должность (VARCHAR(100), обязательный, NOT NULL)
-
-разряд (INTEGER, обязательный, NOT NULL, диапазон: от 7 до 15)
-
-Атрибуты-связи:
-
-id_отдела (INTEGER, FK, внешний ключ к сущности "Отделы", обязательный, NOT NULL, REFERENCES Отделы.id_отдела)
-
-Ограничения:
-
-Сотрудник должен принадлежать к существующему отделу
-
-Должность и разряд сотрудника должны существовать в Тарифной_сетке
-
-ФИО: только кириллические символы
-
-Табельный номер: формат 000001-999999
-
-Сущность "Табель"
-Ключевой атрибут:
-
-id_записи (INTEGER, PK, уникальный идентификатор, NOT NULL, AUTO_INCREMENT)
-
-Описательные атрибуты:
-
-год (INTEGER, обязательный, NOT NULL, диапазон: от 2000 до текущего+1)
-
-месяц (INTEGER, обязательный, NOT NULL, диапазон: от 1 до 12)
-
-отработано_часов (DECIMAL(6,2), обязательный, NOT NULL, диапазон: от 0 до 300)
-
-Атрибуты-связи:
-
-табельный_номер (INTEGER, FK, внешний ключ к сущности "Сотрудники", обязательный, NOT NULL, REFERENCES Сотрудники.табельный_номер)
+<img width="1210" height="456" alt="14 jpg" src="https://github.com/user-attachments/assets/e92c0e92-5649-4520-b5c4-9ad95aee6186" />
+<img width="1434" height="420" alt="15 jpg" src="https://github.com/user-attachments/assets/70475557-ae5f-4e0a-aa2c-7ac36385cad8" />
