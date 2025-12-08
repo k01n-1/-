@@ -178,7 +178,7 @@ erDiagram
     
     ТАРИФНАЯ_СЕТКА }|--|| СОТРУДНИК : "должность_id + разряд"
 ```
-##2 лабараторная
+##2 Лабораторная
 Создаем 5 таблиц
 <img width="914" height="729" alt="1" src="https://github.com/user-attachments/assets/8665ca11-3bf2-43c3-911d-4ade709b6473" />
 <img width="986" height="849" alt="2 jpg" src="https://github.com/user-attachments/assets/e5eafb69-ee52-4cc0-9972-7565aa9daf7e" />
@@ -199,3 +199,17 @@ erDiagram
 
 <img width="1210" height="456" alt="14 jpg" src="https://github.com/user-attachments/assets/e92c0e92-5649-4520-b5c4-9ad95aee6186" />
 <img width="1434" height="420" alt="15 jpg" src="https://github.com/user-attachments/assets/70475557-ae5f-4e0a-aa2c-7ac36385cad8" />
+
+##3 Лабораторная
+
+создадим 2 представления 
+расчетная ведомость
+<img width="859" height="452" alt="20 5" src="https://github.com/user-attachments/assets/26d7ca3f-8306-4528-995c-ed170083f84a" />
+<img width="1497" height="704" alt="23 jpg" src="https://github.com/user-attachments/assets/9e4def9c-737e-439d-96a2-2ccd06c9c862" />
+
+сводка по разрядам
+<img width="1483" height="919" alt="20 jpg" src="https://github.com/user-attachments/assets/0c0cc6ef-c8c7-411f-b5e7-f0b02aaf9ecc" />
+<img width="658" height="671" alt="24 jpg" src="https://github.com/user-attachments/assets/54f9c3cf-a8e5-4148-8fbe-d3645178f56e" />
+процедура для подсчета зарплаты
+<img width="507" height="282" alt="21 jpg" src="https://github.com/user-attachments/assets/e7478099-7eb0-431e-abef-53aeaf2d9a92" />
+процедура для добавления табеля
