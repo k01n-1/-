@@ -215,6 +215,7 @@ erDiagram
 процедура для добавления табеля
 ## 4 лаба
 генератор отделов
+```code
 CREATE OR REPLACE PROCEDURE kostuk.генерировать_отделы(количество_отделов INTEGER)
 LANGUAGE plpgsql
 AS $$
@@ -235,8 +236,10 @@ BEGIN
     FROM generate_series(1, количество_отделов) as seq;
 END;
 $$;
+```
 ![30](https://github.com/user-attachments/assets/fe44c4a5-a9c2-4116-8f40-e1ea53e26679)
 генератор должностей
+```code
 CREATE OR REPLACE PROCEDURE kostuk.генерировать_должности(количество_должностей INTEGER)
 LANGUAGE plpgsql
 AS $$
@@ -246,8 +249,10 @@ BEGIN
     FROM generate_series(1, количество_должностей) as seq;
 END;
 $$;
+```
 ![31](https://github.com/user-attachments/assets/6cc7f074-c66a-4a57-b044-30ff78561f5f)
 тарифы
+```code
 CREATE OR REPLACE PROCEDURE kostuk.генерировать_тарифы(количество_тарифов INTEGER)
 LANGUAGE plpgsql
 AS $$
@@ -300,8 +305,10 @@ BEGIN
     RAISE NOTICE 'Создано тарифов: %', i;
 END;
 $$;
+```
 ![32](https://github.com/user-attachments/assets/9a4c4ddf-2ddb-4bd9-9573-08fc5cccfe14)
 генератор сотрудников
+```code
 CREATE OR REPLACE PROCEDURE kostuk.генерировать_сотрудников(количество_сотрудников INTEGER)
 LANGUAGE plpgsql
 AS $$
@@ -350,8 +357,10 @@ BEGIN
     FROM generate_series(1, количество_сотрудников) as seq;
 END;
 $$;
+```
 ![33](https://github.com/user-attachments/assets/d22e0aea-0204-41d3-aa09-8d03d9db578a)
 генератор табеля
+```code
 CREATE OR REPLACE PROCEDURE kostuk.генерировать_табель_уникальный(количество_записей INTEGER)
 LANGUAGE plpgsql
 AS $$
@@ -372,8 +381,10 @@ BEGIN
     END LOOP;
 END;
 $$;
+```
 ![34](https://github.com/user-attachments/assets/d85ca335-b047-417a-8fba-d59121d9e868)
 анализ запросов
+```code
 EXPLAIN ANALYZE
 SELECT * FROM kostuk."Отдел" WHERE id = 100;
 
@@ -421,6 +432,7 @@ SELECT
 FROM kostuk."Табель" t
 JOIN kostuk."Сотрудник" s ON t.сотрудник_id = s.id
 WHERE t.часы > 150;
+```
 ![35](https://github.com/user-attachments/assets/c74a8201-b811-46b3-ad42-2d3e06afa235)
 создали индекс
 ![36](https://github.com/user-attachments/assets/2685a509-3fdd-4233-afc2-60295f41c93a)
@@ -432,10 +444,8 @@ WHERE t.часы > 150;
 ![39](https://github.com/user-attachments/assets/30302b3e-3a8a-4055-886f-9ea035155158)
 с индексами производительность быстрее
 ## 5 Лаба
--- ============================================
 -- 1. ТРИГГЕР КАСКАДНОГО УДАЛЕНИЯ ТАБЕЛЯ ПРИ УДАЛЕНИИ СОТРУДНИКА
--- ============================================
-
+```code
 CREATE OR REPLACE FUNCTION kostuk.delete_tabel_cascade_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -446,16 +456,15 @@ BEGIN
     RETURN OLD;
 END;
 $$;
-
+```
+```code
 CREATE OR REPLACE TRIGGER delete_tabel_cascade_trigger
     BEFORE DELETE ON kostuk."Сотрудник"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.delete_tabel_cascade_function();
-
--- ============================================
+```
 -- 2. ТРИГГЕР КАСКАДНОГО УДАЛЕНИЯ СОТРУДНИКОВ ПРИ УДАЛЕНИИ ОТДЕЛА
--- ============================================
-
+```code
 CREATE OR REPLACE FUNCTION kostuk.delete_sotrudniki_cascade_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -466,16 +475,14 @@ BEGIN
     RETURN OLD;
 END;
 $$;
-
+```code
 CREATE OR REPLACE TRIGGER delete_sotrudniki_cascade_trigger
     BEFORE DELETE ON kostuk."Отдел"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.delete_sotrudniki_cascade_function();
-
--- ============================================
+```
 -- 3. ТРИГГЕР КАСКАДНОГО УДАЛЕНИЯ ТАРИФОВ И СОТРУДНИКОВ ПРИ УДАЛЕНИИ ДОЛЖНОСТИ
--- ============================================
-
+```code
 CREATE OR REPLACE FUNCTION kostuk.delete_dolzhnost_cascade_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -492,15 +499,15 @@ BEGIN
     RETURN OLD;
 END;
 $$;
-
+```
+```code
 CREATE OR REPLACE TRIGGER delete_dolzhnost_cascade_trigger
     BEFORE DELETE ON kostuk."Должность"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.delete_dolzhnost_cascade_function();
-
--- ============================================
+```
 -- 4. ТАБЛИЦА АУДИТА ДЛЯ ВСЕХ ТАБЛИЦ
--- ============================================
+```code
 
 CREATE TABLE IF NOT EXISTS kostuk."Аудит_Общий"(
     аудит_id SERIAL PRIMARY KEY,
@@ -536,13 +543,11 @@ CREATE TABLE IF NOT EXISTS kostuk."Аудит_Общий"(
     табель_месяц INTEGER,
     табель_часы NUMERIC(6,2)
 );
-
--- ============================================
+```
 -- 5. ФУНКЦИИ И ТРИГГЕРЫ АУДИТА ДЛЯ КАЖДОЙ ТАБЛИЦЫ
--- ============================================
 
-Arseniy Pritechko, [10.12.2025 19:04]
 -- 5.1. Аудит для таблицы "Отдел"
+```code
 CREATE OR REPLACE FUNCTION kostuk.audit_otdel_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -582,13 +587,15 @@ BEGIN
     RETURN NULL;
 END;
 $$;
-
+```
+```code
 CREATE OR REPLACE TRIGGER audit_otdel_trigger
     AFTER INSERT OR UPDATE OR DELETE ON kostuk."Отдел"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.audit_otdel_function();
-
+```
 -- 5.2. Аудит для таблицы "Должность"
+```code
 CREATE OR REPLACE FUNCTION kostuk.audit_dolzhnost_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -628,13 +635,15 @@ BEGIN
     RETURN NULL;
 END;
 $$;
-
+```
+```code
 CREATE OR REPLACE TRIGGER audit_dolzhnost_trigger
     AFTER INSERT OR UPDATE OR DELETE ON kostuk."Должность"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.audit_dolzhnost_function();
-
+```
 -- 5.3. Аудит для таблицы "Тарифная_Сетка"
+```code
 CREATE OR REPLACE FUNCTION kostuk.audit_tarif_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -674,14 +683,16 @@ BEGIN
     RETURN NULL;
 END;
 $$;
-
+```
+```code
 CREATE OR REPLACE TRIGGER audit_tarif_trigger
     AFTER INSERT OR UPDATE OR DELETE ON kostuk."Тарифная_Сетка"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.audit_tarif_function();
+```
 
-Arseniy Pritechko, [10.12.2025 19:04]
 -- 5.4. Аудит для таблицы "Сотрудник"
+```code
 CREATE OR REPLACE FUNCTION kostuk.audit_sotrudnik_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -733,13 +744,15 @@ BEGIN
     RETURN NULL;
 END;
 $$;
-
+```
+```code
 CREATE OR REPLACE TRIGGER audit_sotrudnik_trigger
     AFTER INSERT OR UPDATE OR DELETE ON kostuk."Сотрудник"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.audit_sotrudnik_function();
-
+```
 -- 5.5. Аудит для таблицы "Табель"
+```code
 CREATE OR REPLACE FUNCTION kostuk.audit_tabel_function()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -785,18 +798,17 @@ BEGIN
     RETURN NULL;
 END;
 $$;
-
+```
+```code
 CREATE OR REPLACE TRIGGER audit_tabel_trigger
     AFTER INSERT OR UPDATE OR DELETE ON kostuk."Табель"
     FOR EACH ROW
     EXECUTE FUNCTION kostuk.audit_tabel_function();
-
--- ============================================
+```
 -- 6. ПРОВЕРКА ТРИГГЕРОВ
--- ============================================
 
-Arseniy Pritechko, [10.12.2025 19:04]
 -- 6.1. Проверка каскадного удаления
+```code
 DO $$
 DECLARE
     v_count INTEGER;
@@ -824,8 +836,9 @@ BEGIN
     RAISE NOTICE 'Последние записи аудита:';
 END;
 $$;
-
+```
 -- 6.2. Показать последние записи аудита
+```code
 SELECT 
     аудит_id,
     операция,
@@ -836,8 +849,9 @@ SELECT
 FROM kostuk."Аудит_Общий" 
 ORDER BY изменено_в DESC 
 LIMIT 10;
-
+```
 -- 6.3. Проверка аудита INSERT/UPDATE/DELETE
+```code
 DO $$
 DECLARE
     v_отдел_id INTEGER;
@@ -863,8 +877,9 @@ BEGIN
     RAISE NOTICE 'Отдел удален (с каскадом)';
 END;
 $$;
-
+```
 -- 6.4. Показать подробности аудита по отделам
+```code
 SELECT 
     аудит_id,
     операция,
@@ -880,13 +895,11 @@ FROM kostuk."Аудит_Общий"
 WHERE таблица_имя = 'Отдел'
 ORDER BY изменено_в DESC 
 LIMIT 5;
-
--- ============================================
+```
 -- 7. ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С АУДИТОМ
--- ============================================
 
-Arseniy Pritechko, [10.12.2025 19:04]
 -- 7.1. Функция для получения истории изменений по таблице и ID
+```code
 CREATE OR REPLACE FUNCTION kostuk.получить_историю(
     p_таблица TEXT,
     p_запись_id INTEGER DEFAULT NULL
@@ -946,11 +959,13 @@ BEGIN
     ORDER BY a.изменено_в DESC;
 END;
 $$ LANGUAGE plpgsql;
-
+```
 -- 7.2. Пример использования функции
+```code
 SELECT * FROM kostuk.получить_историю('Отдел') LIMIT 5;
-
+```
 -- 7.3. Функция для очистки старых записей аудита
+```code
 CREATE OR REPLACE FUNCTION kostuk.очистить_аудит_старше_дней(p_дней INTEGER DEFAULT 90)
 RETURNS INTEGER AS $$
 DECLARE
@@ -963,7 +978,7 @@ BEGIN
     RETURN v_удалено;
 END;
 $$ LANGUAGE plpgsql;
-
+```
 -- Пример: очистить записи старше 30 дней
 -- SELECT kostuk.очистить_аудит_старше_дней(30);
 
@@ -971,6 +986,7 @@ $$ LANGUAGE plpgsql;
 ![40](https://github.com/user-attachments/assets/37982d5c-d4f4-4324-8ec9-5d8795eb62c4)
 
 триггер аудита изменений
+```code
 CREATE OR REPLACE FUNCTION kostuk.триггер_аудит_изменений()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -1025,7 +1041,7 @@ BEGIN
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
-
+```
 журнал изменений
 ![41](https://github.com/user-attachments/assets/160734c4-364d-4dd3-bde1-f1df2ea43ce7)
 ![42](https://github.com/user-attachments/assets/1337f057-969e-4374-b909-ebfe1ac6f24d)
